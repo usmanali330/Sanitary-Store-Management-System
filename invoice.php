@@ -78,13 +78,13 @@ $items_result = $stmt->get_result();
 <div class="invoice-box">
     <div class="header">
         <div class="logo">
-            INTIGRAVITY<br>
+            HAJI BABA <br>
             <span style="font-size: 14px; font-weight: normal; color: #777;">Sanitary Store</span>
         </div>
         <div class="company-info">
-            123 Sanitary Market<br>
-            Main Road, City<br>
-            Phone: +92 300 1234567
+            Hardware & Sanitary Store<br>
+            wardaga raod near Juma khan madrassa sardheri<br>
+            Phone: +92 3129098487
         </div>
     </div>
 

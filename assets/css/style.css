@@ -53,6 +53,7 @@ body {
     flex-direction: column;
     z-index: 50;
     transition: var(--transition);
+    overflow-y: auto;
 }
 
 .brand {

@@ -5,7 +5,7 @@ require_once 'config.php';
 <div class="sidebar">
     <div class="brand">
         <i class="fa-solid fa-faucet-drip"></i>
-        <span>Intigravity</span>
+        <span>Sanitary Store System</span>
     </div>
     <ul class="nav-links">
         <li class="nav-item">
@@ -50,13 +50,13 @@ require_once 'config.php';
         </li>
         <?php if (isAdmin()): ?>
         <li class="nav-item">
-            <a href="reports.php" class="<?= $current_page == 'reports.php' ? 'active' : '' ?>">
-                <i class="fa-solid fa-chart-pie"></i> Reports
+            <a href="users.php" class="<?= $current_page == 'users.php' ? 'active' : '' ?>">
+                <i class="fa-solid fa-user-shield"></i> Users
             </a>
         </li>
         <li class="nav-item">
-            <a href="users.php" class="<?= $current_page == 'users.php' ? 'active' : '' ?>">
-                <i class="fa-solid fa-user-shield"></i> Users
+            <a href="reports.php" class="<?= $current_page == 'reports.php' ? 'active' : '' ?>">
+                <i class="fa-solid fa-chart-pie"></i> Reports
             </a>
         </li>
         <?php endif; ?>

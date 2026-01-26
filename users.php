@@ -1,6 +1,6 @@
 <?php
 include 'includes/header.php';
-requireAuth();
+
 
 if (!isAdmin()) {
     echo "<script>window.location.href='index.php';</script>";
@@ -39,8 +39,7 @@ if (isset($_GET['delete'])) {
 $users = $conn->query("SELECT * FROM users");
 ?>
 
-<div class="app-container" style="padding: 0;">
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
         
         <div class="card" style="height: fit-content;">
             <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Add New User</h3>
@@ -81,6 +80,7 @@ $users = $conn->query("SELECT * FROM users");
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if ($users && $users->num_rows > 0): ?>
                         <?php while($row = $users->fetch_assoc()): ?>
                         <tr>
                             <td>#<?= $row['id'] ?></td>
@@ -100,11 +100,13 @@ $users = $conn->query("SELECT * FROM users");
                             </td>
                         </tr>
                         <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr><td colspan="5" style="text-align:center;">No users found or database error.</td></tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-</div>
 
 <?php include 'includes/footer.php'; ?>
