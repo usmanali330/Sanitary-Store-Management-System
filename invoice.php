@@ -41,6 +41,8 @@ $items_result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #<?= $sale['id'] ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; background: #555; }
         .invoice-box {
@@ -62,8 +64,10 @@ $items_result = $stmt->get_result();
         .totals-row { display: flex; justify-content: space-between; padding: 8px 0; }
         .grand-total { font-size: 1.2rem; font-weight: bold; border-top: 2px solid #333; }
         .action-buttons { margin-top: 2rem; text-align: center; }
-        .btn { padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 4px; margin: 0 5px; cursor: pointer; border: none;}
+        .btn { padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 4px; margin: 0 5px; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px;}
         .btn-print { background: #2563eb; }
+        .btn-whatsapp { background: #25D366; }
+        .btn-whatsapp:hover { background: #20BA5A; }
         .btn-home { background: #475569; }
 
         @media print {
@@ -145,10 +149,79 @@ $items_result = $stmt->get_result();
     </div>
 
     <div class="action-buttons">
-        <button onclick="window.print()" class="btn btn-print">Print Invoice</button>
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fa-solid fa-print"></i> Print Invoice
+        </button>
+        <a href="javascript:void(0)" onclick="shareToWhatsApp(event)" class="btn btn-whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Share to WhatsApp
+        </a>
         <a href="edit_sale.php?id=<?= $sale['id'] ?>" class="btn" style="background: #ea580c;">Edit Sale</a>
         <a href="pos.php" class="btn btn-home">Back to POS</a>
     </div>
+
+    <script>
+        async function shareToWhatsApp(event) {
+            event.preventDefault();
+            const invoiceElement = document.querySelector('.invoice-box');
+            const invoiceId = '<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?>';
+            const fileName = `Invoice_${invoiceId}.pdf`;
+            
+            // Show loading state
+            const btn = event.target.closest('.btn-whatsapp') || event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating PDF...';
+            btn.style.pointerEvents = 'none';
+            
+            try {
+                // Generate PDF
+                const opt = {
+                    margin: 0.5,
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                
+                const pdfBlob = await html2pdf().set(opt).from(invoiceElement).outputPdf('blob');
+                
+                // Check if Web Share API is available (mobile devices)
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                    await navigator.share({
+                        title: `Invoice #${invoiceId}`,
+                        text: `Invoice Receipt - Invoice #${invoiceId}`,
+                        files: [file]
+                    });
+                } else {
+                    // For desktop or when Web Share API is not available
+                    // Download the PDF file
+                    const url = URL.createObjectURL(pdfBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    // Show message and open WhatsApp
+                    setTimeout(() => {
+                        alert('PDF downloaded! Please attach the downloaded file to WhatsApp.');
+                        const message = `Invoice Receipt - Invoice #${invoiceId}`;
+                        const encodedMessage = encodeURIComponent(message);
+                        window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, '_blank');
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF. Please try again.');
+            } finally {
+                // Restore button state
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+    </script>
 </div>
 
 </body>

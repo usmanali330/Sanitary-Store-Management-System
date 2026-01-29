@@ -98,16 +98,150 @@ CREATE TABLE IF NOT EXISTS stock_logs (
 INSERT INTO users (username, password, role) VALUES 
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
--- Insert Sample Categories
+-- Insert Categories
 INSERT INTO categories (name) VALUES 
-('Pipes'), ('Taps'), ('WC/Commode'), ('Wash Basins'), ('Showers'), ('Water Tanks'), ('Accessories');
+('Sanitary');
 
--- Insert Sample Products
+-- Insert Products (PPR-C Pipes and Fittings)
 INSERT INTO products (name, category_id, brand, size, type, cost_price, price, quantity, warranty) VALUES 
-('PVC Pipe 4 inch', 1, 'Popular', '4 inch', 'PVC', 400.00, 500.00, 100, '5 Years'),
-('Chrome Basin Mixer', 2, 'Faisal', 'Standard', 'Brass', 2000.00, 2500.00, 50, '1 Year'),
-('Ceramic Commode', 3, 'Porta', 'Standard', 'Ceramic', 10000.00, 12000.00, 20, '10 Years'),
-('Fancy Wash Basin', 4, 'Marachi', 'Medium', 'Ceramic', 3500.00, 4500.00, 30, '3 Years');
+-- Pipes
+('PPR-C Pipe', 1, 'MNR', '25mm x 900mm', 'PPR-C', 0.00, 900.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '25mm x 1000mm', 'PPR-C', 0.00, 1000.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '32mm x 1300mm', 'PPR-C', 0.00, 1300.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '32mm x 1400mm', 'PPR-C', 0.00, 1400.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '40mm x 2200mm', 'PPR-C', 0.00, 2200.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '40mm x 2300mm', 'PPR-C', 0.00, 2300.00, 0, NULL),
+('PPR-C Pipe', 1, 'MNR', '63mm x 5500mm', 'PPR-C', 0.00, 5500.00, 0, NULL),
+
+-- Pipe Clamp
+('Pipe Clamp', 1, 'MNR', '25mm', 'PPR-C', 0.00, 35.00, 0, NULL),
+('Pipe Clamp', 1, 'MNR', '32mm', 'PPR-C', 0.00, 39.00, 0, NULL),
+('Pipe Clamp', 1, 'MNR', '40mm', 'PPR-C', 0.00, 53.00, 0, NULL),
+
+-- Plastic Union
+('Plastic Union', 1, 'MNR', '25mm', 'PPR-C', 0.00, 211.00, 0, NULL),
+('Plastic Union', 1, 'MNR', '32mm', 'PPR-C', 0.00, 288.00, 0, NULL),
+('Plastic Union', 1, 'MNR', '40mm', 'PPR-C', 0.00, 560.00, 0, NULL),
+
+-- P To B Union
+('P To B Union', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 645.00, 0, NULL),
+('P To B Union', 1, 'MNR', '25mm x 3/4', 'PPR-C', 0.00, 645.00, 0, NULL),
+('P To B Union', 1, 'MNR', '32mm x 1/2', 'PPR-C', 0.00, 645.00, 0, NULL),
+('P To B Union', 1, 'MNR', '32mm x 3/4', 'PPR-C', 0.00, 645.00, 0, NULL),
+('P To B Union', 1, 'MNR', '32mm x 1', 'PPR-C', 0.00, 645.00, 0, NULL),
+('P To B Union', 1, 'MNR', '40mm x 1 1/4', 'PPR-C', 0.00, 1620.00, 0, NULL),
+('P To B Union', 1, 'MNR', '40mm x 1', 'PPR-C', 0.00, 1620.00, 0, NULL),
+
+-- Return Valve
+('Return Valve', 1, 'MNR', '25mm', 'PPR-C', 0.00, 2255.00, 0, NULL),
+('Return Valve', 1, 'MNR', '32mm', 'PPR-C', 0.00, 2298.00, 0, NULL),
+('Return Valve', 1, 'MNR', '40mm', 'PPR-C', 0.00, 4680.00, 0, NULL),
+
+-- Ball Valve
+('Ball Valve', 1, 'MNR', '25mm', 'PPR-C', 0.00, 2120.00, 0, NULL),
+('Ball Valve', 1, 'MNR', '32mm', 'PPR-C', 0.00, 2173.00, 0, NULL),
+('Ball Valve', 1, 'MNR', '40mm', 'PPR-C', 0.00, 4505.00, 0, NULL),
+
+-- P Ball Valve
+('P Ball Valve', 1, 'MNR', '25mm', 'PPR-C', 0.00, 682.00, 0, NULL),
+('P Ball Valve', 1, 'MNR', '32mm', 'PPR-C', 0.00, 1148.00, 0, NULL),
+('P Ball Valve', 1, 'MNR', '40mm', 'PPR-C', 0.00, 1148.00, 0, NULL),
+
+-- End Plug
+('End Plug', 1, 'MNR', '25mm', 'PPR-C', 0.00, 30.00, 0, NULL),
+('End Plug', 1, 'MNR', '32mm', 'PPR-C', 0.00, 39.00, 0, NULL),
+('End Plug', 1, 'MNR', '40mm', 'PPR-C', 0.00, 48.00, 0, NULL),
+
+-- End Cap
+('End Cap', 1, 'MNR', '25mm', 'PPR-C', 0.00, 38.00, 0, NULL),
+('End Cap', 1, 'MNR', '32mm', 'PPR-C', 0.00, 72.00, 0, NULL),
+('End Cap', 1, 'MNR', '40mm', 'PPR-C', 0.00, 138.00, 0, NULL),
+
+-- Cross Tee
+('Cross Tee', 1, 'MNR', '25mm', 'PPR-C', 0.00, 162.00, 0, NULL),
+('Cross Tee', 1, 'MNR', '32mm', 'PPR-C', 0.00, 249.00, 0, NULL),
+('Cross Tee', 1, 'MNR', '40mm', 'PPR-C', 0.00, 249.00, 0, NULL),
+
+-- Elbow 45
+('Elbow 45', 1, 'MNR', '25mm', 'PPR-C', 0.00, 83.00, 0, NULL),
+('Elbow 45', 1, 'MNR', '32mm', 'PPR-C', 0.00, 132.00, 0, NULL),
+('Elbow 45', 1, 'MNR', '40mm', 'PPR-C', 0.00, 208.00, 0, NULL),
+
+-- Elbow (90 degree)
+('Elbow', 1, 'MNR', '25mm', 'PPR-C', 0.00, 55.00, 0, NULL),
+('Elbow', 1, 'MNR', '32mm', 'PPR-C', 0.00, 109.00, 0, NULL),
+('Elbow', 1, 'MNR', '40mm', 'PPR-C', 0.00, 211.00, 0, NULL),
+
+-- Female Tee
+('Female Tee', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 316.00, 0, NULL),
+('Female Tee', 1, 'MNR', '25mm x 3/4', 'PPR-C', 0.00, 378.00, 0, NULL),
+('Female Tee', 1, 'MNR', '32mm x 1/2', 'PPR-C', 0.00, 430.00, 0, NULL),
+('Female Tee', 1, 'MNR', '40mm x 1 1/4', 'PPR-C', 0.00, 1398.00, 0, NULL),
+
+-- Male Socket
+('Male Socket', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 370.00, 0, NULL),
+('Male Socket', 1, 'MNR', '32mm x 1', 'PPR-C', 0.00, 737.00, 0, NULL),
+('Male Socket', 1, 'MNR', '40mm x 1 1/4', 'PPR-C', 0.00, 1808.00, 0, NULL),
+
+-- Female Socket
+('Female Socket', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 264.00, 0, NULL),
+('Female Socket', 1, 'MNR', '32mm x 1/2', 'PPR-C', 0.00, 395.00, 0, NULL),
+('Female Socket', 1, 'MNR', '40mm x 1 1/4', 'PPR-C', 0.00, 1346.00, 0, NULL),
+
+-- Cross Bend
+('Cross Bend', 1, 'MNR', '25mm', 'PPR-C', 0.00, 146.00, 0, NULL),
+('Cross Bend', 1, 'MNR', '32mm', 'PPR-C', 0.00, 222.00, 0, NULL),
+('Cross Bend', 1, 'MNR', '40mm', 'PPR-C', 0.00, 329.00, 0, NULL),
+
+-- Tee
+('Tee', 1, 'MNR', '25mm', 'PPR-C', 0.00, 77.00, 0, NULL),
+('Tee', 1, 'MNR', '32mm', 'PPR-C', 0.00, 136.00, 0, NULL),
+('Tee', 1, 'MNR', '40mm', 'PPR-C', 0.00, 242.00, 0, NULL),
+
+-- Reducer Elbow
+('Reducer Elbow', 1, 'MNR', '32mm x 25mm', 'PPR-C', 0.00, 104.00, 0, NULL),
+('Reducer Elbow', 1, 'MNR', '40mm x 32mm', 'PPR-C', 0.00, 196.00, 0, NULL),
+('Reducer Elbow', 1, 'MNR', '40mm x 25mm', 'PPR-C', 0.00, 208.00, 0, NULL),
+
+-- Wall Shower
+('Wall Shower Adjustment', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 668.00, 0, NULL),
+('Wall Shower Adjustment', 1, 'MNR', '25mm x 3/4', 'PPR-C', 0.00, 734.00, 0, NULL),
+
+-- Socket
+('Socket', 1, 'MNR', '25mm', 'PPR-C', 0.00, 48.00, 0, NULL),
+('Socket', 1, 'MNR', '32mm', 'PPR-C', 0.00, 75.00, 0, NULL),
+('Socket', 1, 'MNR', '40mm', 'PPR-C', 0.00, 138.00, 0, NULL),
+
+-- Reducer Tee
+('Reducer Tee', 1, 'MNR', '32mm x 25mm', 'PPR-C', 0.00, 146.00, 0, NULL),
+('Reducer Tee', 1, 'MNR', '40mm x 32mm', 'PPR-C', 0.00, 238.00, 0, NULL),
+('Reducer Tee', 1, 'MNR', '40mm x 25mm', 'PPR-C', 0.00, 236.00, 0, NULL),
+
+-- Gate Valve
+('Gate Valve', 1, 'MNR', '25mm', 'PPR-C', 0.00, 1215.00, 0, NULL),
+('Gate Valve', 1, 'MNR', '32mm', 'PPR-C', 0.00, 1718.00, 0, NULL),
+('Gate Valve', 1, 'MNR', '40mm', 'PPR-C', 0.00, 3685.00, 0, NULL),
+('Gate Valve', 1, 'MNR', '40mm x 1', 'PPR-C', 0.00, 2713.00, 0, NULL),
+
+-- Female Elbow
+('Female Elbow', 1, 'MNR', '25mm x 1/2', 'PPR-C', 0.00, 295.00, 0, NULL),
+('Female Elbow', 1, 'MNR', '32mm x 1/2', 'PPR-C', 0.00, 413.00, 0, NULL),
+('Female Elbow', 1, 'MNR', '40mm x 1 1/4', 'PPR-C', 0.00, 1370.00, 0, NULL),
+
+-- Reducer Socket
+('Reducer Socket', 1, 'MNR', '32mm x 25mm', 'PPR-C', 0.00, 84.00, 0, NULL),
+('Reducer Socket', 1, 'MNR', '40mm x 32mm', 'PPR-C', 0.00, 147.00, 0, NULL),
+('Reducer Socket', 1, 'MNR', '40mm x 25mm', 'PPR-C', 0.00, 158.00, 0, NULL),
+
+-- Under Ground
+('Under Ground', 1, 'MNR', '25mm', 'PPR-C', 0.00, 1690.00, 0, NULL),
+('Under Ground', 1, 'MNR', '32mm', 'PPR-C', 0.00, 2215.00, 0, NULL),
+('Under Ground', 1, 'MNR', '40mm', 'PPR-C', 0.00, 3870.00, 0, NULL),
+
+-- Stop Cock
+('Stop Cock', 1, 'MNR', '25mm', 'PPR-C', 0.00, 1226.00, 0, NULL),
+('Stop Cock', 1, 'MNR', '32mm', 'PPR-C', 0.00, 1810.00, 0, NULL),
+('Stop Cock', 1, 'MNR', '40mm', 'PPR-C', 0.00, 3750.00, 0, NULL);
 
 -- Insert Sample Customers
 INSERT INTO customers (name, type) VALUES 
