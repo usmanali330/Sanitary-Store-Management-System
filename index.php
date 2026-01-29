@@ -35,6 +35,25 @@ $recent_sql = "SELECT s.id, c.name as customer, u.username as staff, s.total_amo
                ORDER BY s.created_at DESC LIMIT 5";
 $recent_result = $conn->query($recent_sql);
 
+// 6. Low Stock List
+$low_stock_list_sql = "SELECT name, quantity, brand FROM products WHERE quantity < 10 ORDER BY quantity ASC LIMIT 5";
+$low_stock_list_result = $conn->query($low_stock_list_sql);
+
+// 7. Total Inventory Value
+$stock_value_sql = "SELECT SUM(quantity * cost_price) as total_value FROM products";
+$stock_value_result = $conn->query($stock_value_sql);
+$total_inventory_value = $stock_value_result->fetch_assoc()['total_value'] ?? 0;
+
+// 8. Total Pending Dues
+$dues_sql = "SELECT SUM(balance) as total_dues FROM customers WHERE balance > 0";
+$dues_result = $conn->query($dues_sql);
+$total_dues = $dues_result->fetch_assoc()['total_dues'] ?? 0;
+
+// 9. Total Potential Profit (from inventory)
+$profit_sql = "SELECT SUM((price - cost_price) * quantity) as total_profit FROM products";
+$profit_result = $conn->query($profit_sql);
+$total_potential_profit = $profit_result->fetch_assoc()['total_profit'] ?? 0;
+
 ?>
 
 <div class="card-grid">
@@ -77,49 +96,118 @@ $recent_result = $conn->query($recent_sql);
             <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
     </div>
+
+    <div class="card stat-card">
+        <div class="stat-info">
+            <h3><?= formatPrice($total_inventory_value) ?></h3>
+            <p>Total Stock Value</p>
+        </div>
+        <div class="stat-icon bg-purple-light">
+            <i class="fa-solid fa-coins"></i>
+        </div>
+    </div>
+
+    <div class="card stat-card">
+        <div class="stat-info">
+            <h3 style="color: var(--danger-color);"><?= formatPrice($total_dues) ?></h3>
+            <p>Total Pending Dues</p>
+        </div>
+        <div class="stat-icon" style="background: #fee2e2; color: var(--danger-color);">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+        </div>
+    </div>
+
+    <div class="card stat-card">
+        <div class="stat-info">
+            <h3 style="color: #10b981;"><?= formatPrice($total_potential_profit) ?></h3>
+            <p>Potential Profit (Stock)</p>
+        </div>
+        <div class="stat-icon" style="background: #d1fae5; color: #10b981;">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+    </div>
 </div>
 
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h3 style="font-size: 1.25rem;">Recent Transactions</h3>
-        <a href="sales.php" class="btn btn-secondary btn-sm">View All</a>
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Recent Transactions -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.25rem;">Recent Transactions</h3>
+            <a href="sales.php" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        
+        <div class="table-container" style="box-shadow: none; padding: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($recent_result->num_rows > 0): ?>
+                        <?php while($row = $recent_result->fetch_assoc()): ?>
+                        <tr>
+                            <td>#<?= str_pad($row['id'], 5, '0', STR_PAD_LEFT) ?></td>
+                            <td><?= htmlspecialchars($row['customer'] ?: 'Walk-in') ?></td>
+                            <td style="font-weight: 600;"><?= formatPrice($row['total_amount']) ?></td>
+                            <td><?= date('M d, h:i A', strtotime($row['created_at'])) ?></td>
+                            <td>
+                                <a href="invoice.php?id=<?= $row['id'] ?>" class="btn btn-secondary btn-sm" title="View Invoice">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-light);">No recent transactions found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-    
-    <div class="table-container" style="box-shadow: none; padding: 0;">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Staff</th>
-                    <th>Total</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($recent_result->num_rows > 0): ?>
-                    <?php while($row = $recent_result->fetch_assoc()): ?>
+
+    <!-- Low Stock Alerts -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.25rem;">Low Stock</h3>
+            <a href="inventory.php" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        
+        <div class="table-container" style="box-shadow: none; padding: 0;">
+            <table style="width: 100%;">
+                <thead>
                     <tr>
-                        <td>#<?= str_pad($row['id'], 5, '0', STR_PAD_LEFT) ?></td>
-                        <td><?= htmlspecialchars($row['customer'] ?: 'Walk-in') ?></td>
-                        <td><?= htmlspecialchars($row['staff']) ?></td>
-                        <td style="font-weight: 600;"><?= formatPrice($row['total_amount']) ?></td>
-                        <td><?= date('M d, Y h:i A', strtotime($row['created_at'])) ?></td>
-                        <td>
-                            <a href="invoice.php?id=<?= $row['id'] ?>" class="btn btn-secondary btn-sm" title="View Invoice">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
-                        </td>
+                        <th>Product</th>
+                        <th style="text-align: right;">Qty</th>
                     </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-light);">No recent transactions found.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if ($low_stock_list_result->num_rows > 0): ?>
+                        <?php while($row = $low_stock_list_result->fetch_assoc()): ?>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500; font-size: 0.9rem;"><?= htmlspecialchars($row['name']) ?></div>
+                                <small style="color: var(--text-light);"><?= htmlspecialchars($row['brand']) ?></small>
+                            </td>
+                            <td style="text-align: right;">
+                                <span class="badge badge-warning"><?= $row['quantity'] ?></span>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: var(--text-light);">No low stock items.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

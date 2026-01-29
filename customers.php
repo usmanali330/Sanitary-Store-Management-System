@@ -58,6 +58,13 @@ $customers = $conn->query("SELECT * FROM customers ORDER BY id DESC");
                     <label>Name *</label>
                     <input type="text" name="name" class="form-control" required value="<?= htmlspecialchars($customer_data['name'] ?? '') ?>">
                 </div>
+
+                <?php if($edit_id): ?>
+                <div class="form-group">
+                    <label>Current Balance</label>
+                    <input type="text" class="form-control" readonly value="<?= formatPrice($customer_data['balance'] ?? 0) ?>" style="background: #f8fafc; font-weight: 600; color: var(--danger-color);">
+                </div>
+                <?php endif; ?>
                 
                 <div class="form-group">
                     <label>Type</label>
@@ -100,6 +107,7 @@ $customers = $conn->query("SELECT * FROM customers ORDER BY id DESC");
                         <tr>
                             <th>Name</th>
                             <th>Contact</th>
+                            <th>Balance</th>
                             <th>Type</th>
                             <th>Action</th>
                         </tr>
@@ -114,6 +122,13 @@ $customers = $conn->query("SELECT * FROM customers ORDER BY id DESC");
                             <td>
                                 <div><?= htmlspecialchars($row['phone']) ?></div>
                                 <small style="color: var(--text-light);"><?= htmlspecialchars($row['email']) ?></small>
+                            </td>
+                            <td>
+                                <?php if ($row['balance'] > 0): ?>
+                                    <span style="color: var(--danger-color); font-weight: 600;"><?= formatPrice($row['balance']) ?></span>
+                                <?php else: ?>
+                                    <span style="color: var(--success-color);">-</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <span class="badge <?= $row['type'] == 'contractor' ? 'badge-warning' : 'badge-success' ?>">

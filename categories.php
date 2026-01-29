@@ -13,6 +13,7 @@ if (isset($_GET['edit'])) {
     $res = $stmt->get_result();
     if ($cat = $res->fetch_assoc()) {
         $edit_name = $cat['name'];
+        $edit_top_list = $cat['top_list'];
     }
 }
 
@@ -24,16 +25,17 @@ if (isset($_GET['delete'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
+    $top_list = $_POST['top_list'];
     if (!empty($name)) {
         if (isset($_POST['id']) && !empty($_POST['id'])) {
             // Update
-            $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
-            $stmt->bind_param("si", $name, $_POST['id']);
+            $stmt = $conn->prepare("UPDATE categories SET name = ?, top_list = ? WHERE id = ?");
+            $stmt->bind_param("ssi", $name, $top_list, $_POST['id']);
             $stmt->execute();
         } else {
             // Insert
-            $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
-            $stmt->bind_param("s", $name);
+            $stmt = $conn->prepare("INSERT INTO categories (name, top_list) VALUES (?, ?)");
+            $stmt->bind_param("ss", $name, $top_list);
             $stmt->execute();
         }
         echo "<script>window.location.href='categories.php';</script>";
@@ -58,6 +60,15 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY id DESC");
                         <input type="hidden" name="id" value="<?= $edit_id ?>">
                     <?php endif; ?>
                     
+                    <div class="form-group">
+                        <label>Top List Selection</label>
+                        <select name="top_list" class="form-control" required>
+                            <option value="hardware" <?= ($edit_top_list ?? '') == 'hardware' ? 'selected' : '' ?>>Hardware Products</option>
+                            <option value="sanitary" <?= ($edit_top_list ?? 'sanitary') == 'sanitary' ? 'selected' : '' ?>>Sanitary Products</option>
+                            <option value="ragrai" <?= ($edit_top_list ?? '') == 'ragrai' ? 'selected' : '' ?>>Ragrai Products</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>Category Name</label>
                         <input type="text" name="name" class="form-control" required value="<?= htmlspecialchars($edit_name) ?>" placeholder="e.g. PVC Pipes">
@@ -84,6 +95,7 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY id DESC");
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Top List</th>
                                 <th>Name</th>
                                 <th>Action</th>
                             </tr>
@@ -92,6 +104,11 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY id DESC");
                             <?php while($row = $categories->fetch_assoc()): ?>
                             <tr>
                                 <td>#<?= $row['id'] ?></td>
+                                <td>
+                                    <span class="badge" style="background: <?= $row['top_list'] == 'hardware' ? '#eff6ff' : ($row['top_list'] == 'sanitary' ? '#ecfdf5' : '#fff7ed') ?>; color: <?= $row['top_list'] == 'hardware' ? '#2563eb' : ($row['top_list'] == 'sanitary' ? '#10b981' : '#f97316') ?>;">
+                                        <?= ucfirst($row['top_list']) ?>
+                                    </span>
+                                </td>
                                 <td><?= htmlspecialchars($row['name']) ?></td>
                                 <td>
                                     <a href="categories.php?edit=<?= $row['id'] ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-pen"></i></a>

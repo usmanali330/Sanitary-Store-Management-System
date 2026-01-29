@@ -67,20 +67,53 @@ try {
     }
 
     // Calculate Final Amounts
-    $tax_amount = ($subtotal * $tax_rate) / 100;
-    $total_amount = ($subtotal + $tax_amount) - $discount;
+    $tax_amount = ($tax_rate > 0) ? ($subtotal * $tax_rate) / 100 : 0;
+    
+    // Total Amount Calculation
+    $total_bill = $subtotal + $tax_amount;
+    $final_total = $total_bill - $discount;
 
+    // Payment Handling
+    $paid_amount = isset($data['paid_amount']) ? floatval($data['paid_amount']) : $final_total;
+    
+    // Ensure paid amount is not greater than total for simplicity (unless handling advance)
+    // For now, let's assume it can be any amount.
+    
+    $due_amount = $final_total - $paid_amount;
+    
     // 3. Create Sale Record
-    $sale_stmt = $conn->prepare("INSERT INTO sales (customer_id, user_id, subtotal, tax, discount, total_amount) VALUES (?, ?, ?, ?, ?, ?)");
-    $sale_stmt->bind_param("iidddd", $customer_id, $user_id, $subtotal, $tax_amount, $discount, $total_amount);
-    $sale_stmt->execute();
+    $sale_stmt = $conn->prepare("INSERT INTO sales (customer_id, user_id, subtotal, tax, discount, total_amount, paid_amount, due_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $sale_stmt->bind_param("iidddddd", $customer_id, $user_id, $subtotal, $tax_amount, $discount, $final_total, $paid_amount, $due_amount);
+    if (!$sale_stmt->execute()) {
+        throw new Exception("Error creating sale record: " . $sale_stmt->error);
+    }
     $sale_id = $conn->insert_id;
 
     // 4. Create Sale Items Records
-    $item_stmt = $conn->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)");
-    foreach ($verified_items as $item) {
-        $item_stmt->bind_param("iiidd", $sale_id, $item['id'], $item['quantity'], $item['price'], $item['total']);
-        $item_stmt->execute();
+    $item_query = "INSERT INTO sale_items (sale_id, product_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)";
+    $item_stmt = $conn->prepare($item_query);
+    if (!$item_stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    
+    foreach ($verified_items as $itm) {
+        // Correct variable names from loop above
+        $p_id = $itm['id'];
+        $qty = $itm['quantity'];
+        $price = $itm['price'];
+        $total_line = $itm['total'];
+        
+        $item_stmt->bind_param("iiidd", $sale_id, $p_id, $qty, $price, $total_line);
+        if (!$item_stmt->execute()) {
+            throw new Exception("Error adding item: " . $item_stmt->error);
+        }
+    }
+    
+    // 5. Update Customer Balance if Due Amount > 0 and Customer is known
+    if ($due_amount != 0 && $customer_id) {
+        $bal_stmt = $conn->prepare("UPDATE customers SET balance = balance + ? WHERE id = ?");
+        $bal_stmt->bind_param("di", $due_amount, $customer_id);
+        $bal_stmt->execute();
     }
 
     $conn->commit();

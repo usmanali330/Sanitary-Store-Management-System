@@ -1,11 +1,56 @@
 <?php
 include 'includes/header.php';
 
-// Fetch Products
-$products_sql = "SELECT * FROM products WHERE quantity > 0 ORDER BY name ASC";
+$sale_id = $_GET['id'] ?? null;
+if (!$sale_id) {
+    echo "<script>window.location.href='sales.php';</script>";
+    exit;
+}
+
+// Fetch Sale details
+$sale_stmt = $conn->prepare("SELECT * FROM sales WHERE id = ?");
+$sale_stmt->bind_param("i", $sale_id);
+$sale_stmt->execute();
+$sale = $sale_stmt->get_result()->fetch_assoc();
+
+if (!$sale) {
+    echo "<script>window.location.href='sales.php';</script>";
+    exit;
+}
+
+// Fetch Sale Items
+$items_stmt = $conn->prepare("SELECT si.*, p.name, p.quantity as current_stock 
+                              FROM sale_items si 
+                              JOIN products p ON si.product_id = p.id 
+                              WHERE si.sale_id = ?");
+$items_stmt->bind_param("i", $sale_id);
+$items_stmt->execute();
+$sale_items_res = $items_stmt->get_result();
+$sale_items = [];
+while ($row = $sale_items_res->fetch_assoc()) {
+    $sale_items[] = [
+        'id' => $row['product_id'],
+        'name' => $row['name'],
+        'price' => (float)$row['price'],
+        'quantity' => (int)$row['quantity'],
+        'max_stock' => (int)$row['current_stock'] + (int)$row['quantity'] // Important: include original qty
+    ];
+}
+
+// Fetch Products for grid
+$products_sql = "SELECT * FROM products ORDER BY name ASC";
 $products_result = $conn->query($products_sql);
 $products = [];
 while ($row = $products_result->fetch_assoc()) {
+    // Check if this product is already in the sale cart to adjust displayed max stock
+    $found_in_sale = false;
+    foreach($sale_items as $si) {
+        if($si['id'] == $row['id']) {
+            $row['quantity'] = $row['quantity'] + $si['quantity'];
+            $found_in_sale = true;
+            break;
+        }
+    }
     $products[] = $row;
 }
 
@@ -38,6 +83,7 @@ $customers_result = $conn->query($customers_sql);
         cursor: pointer;
         transition: all 0.2s;
         text-align: center;
+        position: relative;
     }
     .product-card:hover {
         border-color: var(--primary-color);
@@ -169,6 +215,11 @@ $customers_result = $conn->query($customers_sql);
     }
 </style>
 
+<div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <h2 style="font-size: 1.5rem; font-weight: 700;">Edit Sale #<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?></h2>
+    <a href="sales.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to Sales</a>
+</div>
+
 <div class="pos-container">
     <!-- Left Side: Products -->
     <div style="display: flex; flex-direction: column;">
@@ -195,7 +246,7 @@ $customers_result = $conn->query($customers_sql);
                                 <i class="fa-solid fa-box text-light fa-2x"></i>
                             </div>
                         <?php endif; ?>
-                        <span class="stock-badge"><?= $p['quantity'] ?> left</span>
+                        <span class="stock-badge"><?= $p['quantity'] ?> avail</span>
                     </div>
                     <div style="font-weight: 500; font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;"><?= htmlspecialchars($p['name']) ?></div>
                     <div class="product-price"><?= formatPrice($p['price']) ?></div>
@@ -209,7 +260,7 @@ $customers_result = $conn->query($customers_sql);
         <div class="cart-header">
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
-                    Select Customer
+                    Customer
                     <button onclick="showAddCustomerModal()" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 0.75rem;">
                         <i class="fa-solid fa-plus"></i> New
                     </button>
@@ -217,7 +268,7 @@ $customers_result = $conn->query($customers_sql);
                 <select id="customerSelect" class="form-control" style="font-size: 0.9rem; padding: 0.5rem;">
                     <option value="">Walk-in Customer</option>
                     <?php while($c = $customers_result->fetch_assoc()): ?>
-                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?> (<?= ucfirst($c['type']) ?>)</option>
+                        <option value="<?= $c['id'] ?>" <?= $sale['customer_id'] == $c['id'] ? 'selected' : '' ?>><?= htmlspecialchars($c['name']) ?> (<?= ucfirst($c['type']) ?>)</option>
                     <?php endwhile; ?>
                 </select>
             </div>
@@ -225,10 +276,6 @@ $customers_result = $conn->query($customers_sql);
 
         <div class="cart-items" id="cartItems">
             <!-- Items injected here -->
-            <div style="text-align: center; color: var(--text-light); margin-top: 2rem;">
-                <i class="fa-solid fa-cart-shopping fa-2x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Cart is empty</p>
-            </div>
         </div>
 
         <div class="cart-footer">
@@ -238,7 +285,7 @@ $customers_result = $conn->query($customers_sql);
             </div>
             <div class="summary-row" style="align-items: center;">
                 <span>Discount</span>
-                <input type="number" id="discountInput" class="form-control" style="width: 80px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" value="0" oninput="renderCart()">
+                <input type="number" id="discountInput" class="form-control" style="width: 80px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" value="<?= $sale['discount'] ?>" oninput="renderCart()">
             </div>
             <div class="summary-row total-row">
                 <span>Total</span>
@@ -246,23 +293,30 @@ $customers_result = $conn->query($customers_sql);
             </div>
             <div class="summary-row" style="align-items: center; margin-top: 1rem;">
                 <span>Paid Amount</span>
-                <input type="number" id="paidInput" class="form-control" style="width: 100px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" placeholder="0.00" oninput="calculateDue()">
+                <input type="number" id="paidInput" class="form-control" style="width: 100px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" value="<?= $sale['paid_amount'] ?>" oninput="calculateDue()">
             </div>
             <div class="summary-row" style="color: var(--danger-color); font-weight: 600;">
                 <span>Due Amount</span>
                 <span id="dueDisplay">Rs. 0.00</span>
             </div>
             
-            <button onclick="processSale()" id="checkoutBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1rem; padding: 0.8rem;" disabled>
-                <i class="fa-solid fa-receipt"></i> Process Sale
+            <button onclick="updateSale()" id="updateBtn" class="btn btn-warning" style="width: 100%; margin-top: 1rem; font-size: 1rem; padding: 0.8rem;">
+                <i class="fa-solid fa-save"></i> Update & Save Sale
             </button>
         </div>
     </div>
 </div>
 
 <script>
-    let cart = [];
+    let cart = <?= json_encode($sale_items) ?>;
+    let currentTotal = 0;
+    const saleId = <?= $sale_id ?>;
     let currentTopList = 'all';
+
+    // Initial render
+    window.onload = function() {
+        renderCart();
+    };
 
     function setTopListFilter(type, el) {
         currentTopList = type;
@@ -277,7 +331,7 @@ $customers_result = $conn->query($customers_sql);
         cards.forEach(card => {
             const name = card.getAttribute('data-name');
             const type = card.getAttribute('data-type');
-            
+
             const matchesSearch = name.includes(query);
             const matchesType = (currentTopList === 'all' || type === currentTopList);
 
@@ -290,7 +344,6 @@ $customers_result = $conn->query($customers_sql);
     }
 
     function addToCart(product) {
-        // Check if exists
         const existing = cart.find(item => item.id === product.id);
         if (existing) {
             if (existing.quantity < product.quantity) {
@@ -328,7 +381,7 @@ $customers_result = $conn->query($customers_sql);
 
     function renderCart() {
         const container = document.getElementById('cartItems');
-        const checkoutBtn = document.getElementById('checkoutBtn');
+        const updateBtn = document.getElementById('updateBtn');
         
         if (cart.length === 0) {
             container.innerHTML = `
@@ -337,13 +390,13 @@ $customers_result = $conn->query($customers_sql);
                     <p>Cart is empty</p>
                 </div>
             `;
-            checkoutBtn.disabled = true;
+            updateBtn.disabled = true;
             document.getElementById('subtotalDisplay').innerText = 'Rs. 0.00';
             document.getElementById('totalDisplay').innerText = 'Rs. 0.00';
             return;
         }
 
-        checkoutBtn.disabled = false;
+        updateBtn.disabled = false;
         let html = '';
         let subtotal = 0;
 
@@ -378,8 +431,6 @@ $customers_result = $conn->query($customers_sql);
         document.getElementById('subtotalDisplay').innerText = 'Rs. ' + subtotal.toFixed(2);
         document.getElementById('totalDisplay').innerText = 'Rs. ' + currentTotal.toFixed(2);
         
-        // Update Paid input default if 0
-        // removed auto-fill as per user request
         calculateDue();
     }
 
@@ -389,26 +440,27 @@ $customers_result = $conn->query($customers_sql);
         document.getElementById('dueDisplay').innerText = 'Rs. ' + (due > 0 ? due.toFixed(2) : '0.00');
     }
 
-    function processSale() {
-        if (!confirm('Complete this sale?')) return;
+    function updateSale() {
+        if (!confirm('Update this sale record? Previous inventory and customer balance changes will be updated.')) return;
 
         const customerId = document.getElementById('customerSelect').value;
         const discount = parseFloat(document.getElementById('discountInput').value) || 0;
         const paidAmount = parseFloat(document.getElementById('paidInput').value) || 0;
 
         const data = {
+            sale_id: saleId,
             customer_id: customerId ? customerId : null,
             items: cart,
             discount: discount,
             paid_amount: paidAmount
         };
 
-        const btn = document.getElementById('checkoutBtn');
+        const btn = document.getElementById('updateBtn');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
         btn.disabled = true;
 
-        fetch('process_sale.php', {
+        fetch('update_sale.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -416,7 +468,7 @@ $customers_result = $conn->query($customers_sql);
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
-                window.location.href = 'invoice.php?id=' + result.sale_id;
+                window.location.href = 'invoice.php?id=' + saleId;
             } else {
                 showToast('Error: ' + result.message, 'error');
                 btn.innerHTML = originalText;
@@ -465,7 +517,6 @@ $customers_result = $conn->query($customers_sql);
 </div>
 
 <script>
-    // ... existing script functions ...
     function showAddCustomerModal() {
         document.getElementById('customerModal').style.display = 'flex';
         document.getElementById('quickCustName').focus();
@@ -495,7 +546,6 @@ $customers_result = $conn->query($customers_sql);
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
-                // Add to dropdown and select
                 const select = document.getElementById('customerSelect');
                 const option = document.createElement('option');
                 option.value = result.id;
@@ -514,7 +564,6 @@ $customers_result = $conn->query($customers_sql);
             alert('An error occurred.');
         });
     }
-    // ... rest of script ...
 </script>
 
 <?php include 'includes/footer.php'; ?>

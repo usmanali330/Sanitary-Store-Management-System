@@ -44,16 +44,17 @@ require_once 'config.php';
             </a>
         </li>
         <li class="nav-item">
+            <a href="pending_dues.php" class="<?= $current_page == 'pending_dues.php' ? 'active' : '' ?>">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Pending Dues
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="suppliers.php" class="<?= $current_page == 'suppliers.php' ? 'active' : '' ?>">
                 <i class="fa-solid fa-truck"></i> Suppliers
             </a>
         </li>
         <?php if (isAdmin()): ?>
-        <li class="nav-item">
-            <a href="users.php" class="<?= $current_page == 'users.php' ? 'active' : '' ?>">
-                <i class="fa-solid fa-user-shield"></i> Users
-            </a>
-        </li>
+
         <li class="nav-item">
             <a href="reports.php" class="<?= $current_page == 'reports.php' ? 'active' : '' ?>">
                 <i class="fa-solid fa-chart-pie"></i> Reports

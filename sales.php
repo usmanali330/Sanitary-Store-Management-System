@@ -113,6 +113,9 @@ $range_total = $total_stmt->get_result()->fetch_assoc()['total'] ?? 0;
                             <a href="invoice.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm" title="View Invoice">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
+                            <a href="edit_sale.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm" title="Edit Sale">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
                         </td>
                     </tr>
                     <?php endwhile; ?>

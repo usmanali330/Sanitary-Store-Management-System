@@ -146,6 +146,7 @@ $items_result = $stmt->get_result();
 
     <div class="action-buttons">
         <button onclick="window.print()" class="btn btn-print">Print Invoice</button>
+        <a href="edit_sale.php?id=<?= $sale['id'] ?>" class="btn" style="background: #ea580c;">Edit Sale</a>
         <a href="pos.php" class="btn btn-home">Back to POS</a>
     </div>
 </div>

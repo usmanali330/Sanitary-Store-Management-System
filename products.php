@@ -15,6 +15,7 @@ if (isset($_GET['delete'])) {
 
 // Search & Filter
 $search = $_GET['search'] ?? '';
+$top_list_filter = $_GET['top_list'] ?? '';
 $category_filter = $_GET['category'] ?? '';
 
 $query = "SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE 1=1";
@@ -27,6 +28,12 @@ if ($search) {
     $params[] = $searchTerm;
     $params[] = $searchTerm;
     $types .= "ss";
+}
+
+if ($top_list_filter) {
+    $query .= " AND p.top_list = ?";
+    $params[] = $top_list_filter;
+    $types .= "s";
 }
 
 if ($category_filter) {
@@ -45,7 +52,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 // Get categories for filter
-$cats = $conn->query("SELECT * FROM categories");
+$cats_res = $conn->query("SELECT * FROM categories ORDER BY name ASC");
+$categories_data = [];
+while($c = $cats_res->fetch_assoc()) {
+    $categories_data[] = $c;
+}
 ?>
 
 <div class="card">
@@ -59,18 +70,22 @@ $cats = $conn->query("SELECT * FROM categories");
         </a>
     </div>
 
-    <form method="GET" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <input type="text" name="search" class="form-control" placeholder="Search product name or brand..." value="<?= htmlspecialchars($search) ?>" style="max-width: 300px;">
+    <form method="GET" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+        <input type="text" name="search" class="form-control" placeholder="Search name or brand..." value="<?= htmlspecialchars($search) ?>" style="max-width: 200px;">
         
-        <select name="category" class="form-control" style="max-width: 200px;">
+        <select name="top_list" id="top_list_filter" class="form-control" style="max-width: 180px;" onchange="updateCategoryFilter()">
+            <option value="">All Top Lists</option>
+            <option value="hardware" <?= $top_list_filter == 'hardware' ? 'selected' : '' ?>>Hardware</option>
+            <option value="sanitary" <?= $top_list_filter == 'sanitary' ? 'selected' : '' ?>>Sanitary</option>
+            <option value="ragrai" <?= $top_list_filter == 'ragrai' ? 'selected' : '' ?>>Ragrai</option>
+        </select>
+
+        <select name="category" id="category_filter" class="form-control" style="max-width: 180px;">
             <option value="">All Categories</option>
-            <?php while($c = $cats->fetch_assoc()): ?>
-                <option value="<?= $c['id'] ?>" <?= $category_filter == $c['id'] ? 'selected' : '' ?>><?= htmlspecialchars($c['name']) ?></option>
-            <?php endwhile; ?>
         </select>
         
         <button type="submit" class="btn btn-secondary">Filter</button>
-        <?php if($search || $category_filter): ?>
+        <?php if($search || $category_filter || $top_list_filter): ?>
             <a href="products.php" class="btn btn-danger" style="text-decoration: none;">Reset</a>
         <?php endif; ?>
     </form>
@@ -81,8 +96,10 @@ $cats = $conn->query("SELECT * FROM categories");
                 <tr>
                     <th>Image</th>
                     <th>Product Name</th>
+                    <th>Top List</th>
                     <th>Category</th>
                     <th>Brand</th>
+                    <th>Color</th>
                     <th>Size/Type</th>
                     <th>Price</th>
                     <th>Quantity</th>
@@ -106,8 +123,14 @@ $cats = $conn->query("SELECT * FROM categories");
                             <div style="font-weight: 500;"><?= htmlspecialchars($row['name']) ?></div>
                             <small style="color: var(--text-light);"><?= htmlspecialchars($row['warranty']) ?></small>
                         </td>
+                        <td>
+                            <span class="badge" style="background: <?= $row['top_list'] == 'hardware' ? '#eff6ff' : ($row['top_list'] == 'sanitary' ? '#ecfdf5' : '#fff7ed') ?>; color: <?= $row['top_list'] == 'hardware' ? '#2563eb' : ($row['top_list'] == 'sanitary' ? '#10b981' : '#f97316') ?>;">
+                                <?= ucfirst($row['top_list']) ?>
+                            </span>
+                        </td>
                         <td><?= htmlspecialchars($row['category_name']) ?></td>
                         <td><?= htmlspecialchars($row['brand']) ?></td>
+                        <td><?= htmlspecialchars($row['color']) ?></td>
                         <td><?= htmlspecialchars($row['size']) ?> <br> <small><?= htmlspecialchars($row['type']) ?></small></td>
                         <td style="font-weight: 600;"><?= formatPrice($row['price']) ?></td>
                         <td>
@@ -136,5 +159,29 @@ $cats = $conn->query("SELECT * FROM categories");
         </table>
     </div>
 </div>
+
+<script>
+    const categories = <?= json_encode($categories_data) ?>;
+    const currentCategoryId = "<?= $category_filter ?>";
+
+    function updateCategoryFilter() {
+        const topList = document.getElementById('top_list_filter').value;
+        const categorySelect = document.getElementById('category_filter');
+        
+        categorySelect.innerHTML = '<option value="">All Categories</option>';
+        
+        const filtered = topList ? categories.filter(c => c.top_list === topList) : categories;
+        
+        filtered.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = c.name;
+            if (c.id == currentCategoryId) option.selected = true;
+            categorySelect.appendChild(option);
+        });
+    }
+
+    window.onload = updateCategoryFilter;
+</script>
 
 <?php include 'includes/footer.php'; ?>
