@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
 -- Categories Table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+    top_list VARCHAR(50) DEFAULT 'sanitary'
 );
 
 -- Suppliers Table
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS customers (
     phone VARCHAR(20),
     address TEXT,
     type ENUM('regular', 'contractor') DEFAULT 'regular',
+    balance DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -43,8 +45,10 @@ CREATE TABLE IF NOT EXISTS customers (
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
+    top_list VARCHAR(50) DEFAULT 'sanitary', -- hardware, sanitary, ragrai
     category_id INT,
     brand VARCHAR(100),
+    color VARCHAR(50),
     size VARCHAR(50),
     type VARCHAR(50), -- e.g. Ceramic, Plastic, Steel
     cost_price DECIMAL(10, 2) DEFAULT 0, -- Added cost price
@@ -65,6 +69,8 @@ CREATE TABLE IF NOT EXISTS sales (
     tax DECIMAL(10, 2),
     discount DECIMAL(10, 2),
     total_amount DECIMAL(10, 2),
+    paid_amount DECIMAL(10, 2) DEFAULT 0,
+    due_amount DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
@@ -91,6 +97,16 @@ CREATE TABLE IF NOT EXISTS stock_logs (
     reason VARCHAR(255), 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+-- Payments Table
+CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    amount DECIMAL(10, 2) NOT NULL,
+    note VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
 -- Insert Default Admin User (Password: admin123)

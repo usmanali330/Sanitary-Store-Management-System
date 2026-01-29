@@ -95,6 +95,8 @@ $range_total = $total_stmt->get_result()->fetch_assoc()['total'] ?? 0;
                     <th>Subtotal</th>
                     <th>Discount</th>
                     <th>Total</th>
+                    <th>Paid</th>
+                    <th>Due</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -109,6 +111,8 @@ $range_total = $total_stmt->get_result()->fetch_assoc()['total'] ?? 0;
                         <td><?= number_format($row['subtotal'], 2) ?></td>
                         <td style="color: var(--danger-color);"><?= $row['discount'] > 0 ? '-' . number_format($row['discount'], 2) : '0.00' ?></td>
                         <td style="font-weight: 600;"><?= formatPrice($row['total_amount']) ?></td>
+                        <td style="color: #10b981; font-weight: 600;"><?= formatPrice($row['paid_amount']) ?></td>
+                        <td style="color: <?= $row['due_amount'] > 0 ? 'var(--danger-color)' : '#10b981' ?>; font-weight: 600;"><?= formatPrice($row['due_amount']) ?></td>
                         <td>
                             <a href="invoice.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm" title="View Invoice">
                                 <i class="fa-solid fa-eye"></i>
@@ -121,7 +125,7 @@ $range_total = $total_stmt->get_result()->fetch_assoc()['total'] ?? 0;
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 2rem;">No sales found for this period.</td>
+                        <td colspan="10" style="text-align: center; padding: 2rem;">No sales found for this period.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
