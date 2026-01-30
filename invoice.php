@@ -184,37 +184,61 @@ $items_result = $stmt->get_result();
                 
                 const pdfBlob = await html2pdf().set(opt).from(invoiceElement).outputPdf('blob');
                 
+                // Upload PDF to server first
+                const formData = new FormData();
+                formData.append('pdf', pdfBlob, fileName);
+                formData.append('invoice_id', '<?= $sale['id'] ?>');
+                
+                const uploadResponse = await fetch('save_invoice_pdf.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadResult = await uploadResponse.json();
+                
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.error || 'Failed to upload PDF');
+                }
+                
                 // Check if Web Share API is available (mobile devices)
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                    await navigator.share({
-                        title: `Invoice #${invoiceId}`,
-                        text: `Invoice Receipt - Invoice #${invoiceId}`,
-                        files: [file]
-                    });
-                } else {
-                    // For desktop or when Web Share API is not available
-                    // Download the PDF file
-                    const url = URL.createObjectURL(pdfBlob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = fileName;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    // Show message and open WhatsApp
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: `Invoice #${invoiceId}`,
+                                text: `Invoice Receipt - Invoice #${invoiceId}`,
+                                files: [file]
+                            });
+                            return; // Successfully shared via Web Share API
+                        }
+                    } catch (shareError) {
+                        // If share fails, fall through to WhatsApp URL method
+                        console.log('Share API failed, using WhatsApp URL');
+                    }
+                }
+                
+                // Open WhatsApp directly with PDF link
+                const message = `Invoice Receipt - Invoice #${invoiceId}\n\nPDF: ${uploadResult.full_url}`;
+                const encodedMessage = encodeURIComponent(message);
+                
+                // Detect mobile device
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    // Try WhatsApp app first, fallback to web
+                    window.location.href = `whatsapp://send?text=${encodedMessage}`;
+                    // Fallback to web if app doesn't open
                     setTimeout(() => {
-                        alert('PDF downloaded! Please attach the downloaded file to WhatsApp.');
-                        const message = `Invoice Receipt - Invoice #${invoiceId}`;
-                        const encodedMessage = encodeURIComponent(message);
-                        window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, '_blank');
-                    }, 500);
+                        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+                    }, 1000);
+                } else {
+                    // Open WhatsApp Web directly
+                    window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, '_blank');
                 }
             } catch (error) {
-                console.error('Error generating PDF:', error);
-                alert('Error generating PDF. Please try again.');
+                console.error('Error:', error);
+                alert('Error sharing PDF. Please try again.');
             } finally {
                 // Restore button state
                 btn.innerHTML = originalText;
