@@ -9,27 +9,26 @@ $total_dues = 0;
 ?>
 
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
         <div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--danger-color);">Pending Dues List</h3>
-            <p style="color: var(--text-light);">Customers with outstanding pending balances.</p>
+            <h3 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; color: var(--danger); margin-bottom: 0.5rem;">Receivable Balances</h3>
+            <p style="color: var(--text-muted); font-weight: 600;">Monitor and manage outstanding customer dues.</p>
         </div>
         
-        <button onclick="window.print()" class="btn btn-primary no-print">
-            <i class="fa-solid fa-print"></i> Print List
+        <button onclick="window.print()" class="btn btn-secondary no-print">
+            <i class="fa-solid fa-print"></i> Export Print Data
         </button>
     </div>
 
-    <div class="table-container" style="box-shadow: none; padding: 0;">
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
                     <th>Customer Name</th>
                     <th>Contact Info</th>
-                    <th>Address</th>
-                    <th>Type</th>
-                    <th style="text-align: right;">Pending Balance</th>
-                    <th class="no-print">Action</th>
+                    <th>Relationship</th>
+                    <th style="text-align: right;">Pending Dues</th>
+                    <th class="no-print" style="text-align: right;">Management</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,50 +37,50 @@ $total_dues = 0;
                         $total_dues += $row['balance'];
                     ?>
                     <tr>
-                        <td style="font-weight: 500; font-size: 1.05rem;">
+                        <td style="font-weight: 700;">
                             <?= htmlspecialchars($row['name']) ?>
                         </td>
                         <td>
-                            <div><i class="fa-solid fa-phone" style="width: 20px; color: var(--text-light);"></i> <?= htmlspecialchars($row['phone']) ?></div>
+                            <div style="font-weight: 600;"><i class="fa-solid fa-phone" style="width: 20px; color: var(--primary);"></i> <?= htmlspecialchars($row['phone']) ?></div>
                             <?php if($row['email']): ?>
-                            <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem;"><i class="fa-solid fa-envelope" style="width: 20px;"></i><?= htmlspecialchars($row['email']) ?></div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-envelope" style="width: 20px;"></i><?= htmlspecialchars($row['email']) ?></div>
                             <?php endif; ?>
-                        </td>
-                        <td style="max-width: 250px;">
-                            <?= htmlspecialchars($row['address']) ?: '<span style="color: #ccc;">N/A</span>' ?>
                         </td>
                         <td>
                             <span class="badge <?= $row['type'] == 'contractor' ? 'badge-warning' : 'badge-success' ?>">
                                 <?= ucfirst($row['type']) ?>
                             </span>
                         </td>
-                        <td style="text-align: right; color: var(--danger-color); font-weight: 700; font-size: 1.1rem;">
+                        <td style="text-align: right; color: var(--danger); font-weight: 800; font-size: 1.1rem;">
                             <?= formatPrice($row['balance']) ?>
                         </td>
-                        <td class="no-print">
-                            <a href="receive_payment.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm" title="Receive Payment">
-                                <i class="fa-solid fa-hand-holding-dollar"></i>
-                            </a>
-                            <a href="due_receipt.php?id=<?= $row['id'] ?>" target="_blank" class="btn btn-secondary btn-sm" title="Generate Receipt">
-                                <i class="fa-solid fa-file-invoice"></i> Receipt
-                            </a>
+                        <td class="no-print" style="text-align: right;">
+                            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                <a href="receive_payment.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm" title="Receive Payment">
+                                    <i class="fa-solid fa-money-bill-wave"></i> Recv
+                                </a>
+                                <a href="due_receipt.php?id=<?= $row['id'] ?>" target="_blank" class="btn btn-secondary btn-sm" title="Generate Receipt">
+                                    <i class="fa-solid fa-file-invoice"></i> PDF
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                     
-                    <tr style="background: #fff1f2; font-weight: bold;">
-                        <td colspan="4" style="text-align: right; padding: 1.5rem;">Total Outstanding Dues:</td>
-                        <td style="text-align: right; color: var(--danger-color); font-size: 1.25rem; padding: 1.5rem 1rem;">
+                    <tr style="background: var(--danger-light); font-weight: 800;">
+                        <td colspan="3" style="text-align: right; padding: 2rem;">Total Cumulative Receivables:</td>
+                        <td style="text-align: right; color: var(--danger); font-size: 1.5rem; padding: 2rem 1.5rem;">
                             <?= formatPrice($total_dues) ?>
                         </td>
-                        <td></td>
+                        <td class="no-print"></td>
                     </tr>
                     
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--success-color);">
-                            <i class="fa-solid fa-check-circle fa-3x" style="margin-bottom: 1rem;"></i><br>
-                            No pending dues found! All clear.
+                        <td colspan="5" style="text-align: center; padding: 5rem; color: var(--success);">
+                            <i class="fa-solid fa-circle-check fa-4x" style="margin-bottom: 1.5rem; opacity: 0.2;"></i><br>
+                            <span style="font-size: 1.25rem; font-weight: 700;">Zero Outstanding Balance!</span><br>
+                            <span style="color: var(--text-muted);">All customers have cleared their accounts.</span>
                         </td>
                     </tr>
                 <?php endif; ?>
@@ -110,7 +109,10 @@ $total_dues = 0;
             border: none !important;
             padding: 0 !important;
         }
+        table th { background: #f1f5f9 !important; border-bottom: 2px solid #000 !important; }
+        td { border-bottom: 1px solid #eee !important; }
     }
 </style>
+
 
 <?php include 'includes/footer.php'; ?>

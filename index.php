@@ -109,20 +109,20 @@ $total_potential_profit = $profit_result->fetch_assoc()['total_profit'] ?? 0;
 
     <div class="card stat-card">
         <div class="stat-info">
-            <h3 style="color: var(--danger-color);"><?= formatPrice($total_dues) ?></h3>
+            <h3 style="color: var(--danger);"><?= formatPrice($total_dues) ?></h3>
             <p>Total Pending Dues</p>
         </div>
-        <div class="stat-icon" style="background: #fee2e2; color: var(--danger-color);">
+        <div class="stat-icon" style="background: var(--danger-light); color: var(--danger);">
             <i class="fa-solid fa-hand-holding-dollar"></i>
         </div>
     </div>
 
     <div class="card stat-card">
         <div class="stat-info">
-            <h3 style="color: #10b981;"><?= formatPrice($total_potential_profit) ?></h3>
+            <h3 style="color: var(--success);"><?= formatPrice($total_potential_profit) ?></h3>
             <p>Potential Profit (Stock)</p>
         </div>
-        <div class="stat-icon" style="background: #d1fae5; color: #10b981;">
+        <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
             <i class="fa-solid fa-chart-line"></i>
         </div>
     </div>

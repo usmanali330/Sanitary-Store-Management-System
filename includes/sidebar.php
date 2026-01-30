@@ -5,7 +5,7 @@ require_once 'config.php';
 <div class="sidebar">
     <div class="brand">
         <i class="fa-solid fa-faucet-drip"></i>
-        <span>Sanitary Store System</span>
+        <span>Haji Baba</span>
     </div>
     <ul class="nav-links">
         <li class="nav-item">
