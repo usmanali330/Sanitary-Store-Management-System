@@ -184,23 +184,7 @@ $items_result = $stmt->get_result();
                 
                 const pdfBlob = await html2pdf().set(opt).from(invoiceElement).outputPdf('blob');
                 
-                // Upload PDF to server first
-                const formData = new FormData();
-                formData.append('pdf', pdfBlob, fileName);
-                formData.append('invoice_id', '<?= $sale['id'] ?>');
-                
-                const uploadResponse = await fetch('save_invoice_pdf.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const uploadResult = await uploadResponse.json();
-                
-                if (!uploadResult.success) {
-                    throw new Error(uploadResult.error || 'Failed to upload PDF');
-                }
-                
-                // Check if Web Share API is available (mobile devices)
+                // Try Web Share API (mobile devices) - shows share sheet with WhatsApp if available
                 if (navigator.share && navigator.canShare) {
                     try {
                         const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
@@ -210,40 +194,41 @@ $items_result = $stmt->get_result();
                                 text: `Invoice Receipt - Invoice #${invoiceId}`,
                                 files: [file]
                             });
-                            return; // Successfully shared via Web Share API
+                            // If share was successful, return
+                            return;
                         }
                     } catch (shareError) {
-                        // If share fails, fall through to WhatsApp URL method
-                        console.log('Share API failed, using WhatsApp URL');
+                        // If user cancelled, just return
+                        if (shareError.name === 'AbortError') {
+                            return;
+                        }
+                        // If share failed or WhatsApp not available in share sheet, download PDF
+                        downloadPDF(pdfBlob, fileName);
+                        return;
                     }
                 }
                 
-                // Open WhatsApp directly with PDF link
-                const message = `Invoice Receipt - Invoice #${invoiceId}\n\nPDF: ${uploadResult.full_url}`;
-                const encodedMessage = encodeURIComponent(message);
-                
-                // Detect mobile device
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                if (isMobile) {
-                    // Try WhatsApp app first, fallback to web
-                    window.location.href = `whatsapp://send?text=${encodedMessage}`;
-                    // Fallback to web if app doesn't open
-                    setTimeout(() => {
-                        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
-                    }, 1000);
-                } else {
-                    // Open WhatsApp Web directly
-                    window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, '_blank');
-                }
+                // If Web Share API not available or doesn't support files, just download PDF
+                downloadPDF(pdfBlob, fileName);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error sharing PDF. Please try again.');
+                alert('Error generating PDF. Please try again.');
             } finally {
                 // Restore button state
                 btn.innerHTML = originalText;
                 btn.style.pointerEvents = 'auto';
             }
+        }
+        
+        function downloadPDF(pdfBlob, fileName) {
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
     </script>
 </div>
