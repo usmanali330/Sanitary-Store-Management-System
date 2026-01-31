@@ -19,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Auto-login logic (Bypass Login)
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !isset($_SESSION['username'])) {
     $_SESSION['user_id'] = 1; // Default to ID 1 (Admin)
     $_SESSION['username'] = 'System Admin';
     $_SESSION['role'] = 'admin';

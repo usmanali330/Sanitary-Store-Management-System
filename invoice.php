@@ -386,7 +386,7 @@ while ($item = $items_result->fetch_assoc()) {
                 <div class="info-value">#<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?></div>
                 <div style="margin-top: 12px; font-size: 0.9rem; color: var(--text-muted);">
                     <strong>Issued:</strong> <?= date('d M Y, h:i A', strtotime($sale['created_at'])) ?><br>
-                    <strong>Clerk:</strong> <?= htmlspecialchars($sale['staff']) ?>
+                    <strong>Clerk:</strong> <?= htmlspecialchars($sale['staff'] ?? '') ?>
                 </div>
             </div>
         </div>

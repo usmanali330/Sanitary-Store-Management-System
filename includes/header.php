@@ -59,11 +59,11 @@ requireAuth();
                 </div>
                 <div class="user-profile">
                     <div style="text-align: right; margin-right: 8px;">
-                        <span style="display: block; font-weight: 700; font-size: 0.95rem; color: var(--text-main);"><?= htmlspecialchars($_SESSION['username']) ?></span>
-                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;"><?= ucfirst(htmlspecialchars($_SESSION['role'])) ?></span>
+                        <span style="display: block; font-weight: 700; font-size: 0.95rem; color: var(--text-main);"><?= htmlspecialchars($_SESSION['username'] ?? 'Guest') ?></span>
+                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;"><?= ucfirst(htmlspecialchars($_SESSION['role'] ?? 'user')) ?></span>
                     </div>
                     <div class="user-avatar">
-                        <?= strtoupper(substr($_SESSION['username'], 0, 1)) ?>
+                        <?= strtoupper(substr($_SESSION['username'] ?? 'G', 0, 1)) ?>
                     </div>
                 </div>
             </div>

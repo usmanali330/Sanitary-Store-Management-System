@@ -107,7 +107,7 @@ $range_total = $total_stmt->get_result()->fetch_assoc()['total'] ?? 0;
                         <td><?= str_pad($row['id'], 5, '0', STR_PAD_LEFT) ?></td>
                         <td><?= date('M d, Y h:i A', strtotime($row['created_at'])) ?></td>
                         <td><?= htmlspecialchars($row['customer_name'] ?: 'Walk-in') ?></td>
-                        <td><?= htmlspecialchars($row['staff']) ?></td>
+                        <td><?= htmlspecialchars($row['staff'] ?? '') ?></td>
                         <td><?= number_format($row['subtotal'], 2) ?></td>
                         <td style="color: var(--danger-color);"><?= $row['discount'] > 0 ? '-' . number_format($row['discount'], 2) : '0.00' ?></td>
                         <td style="font-weight: 600;"><?= formatPrice($row['total_amount']) ?></td>

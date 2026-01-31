@@ -16,346 +16,205 @@ $customers_result = $conn->query($customers_sql);
 ?>
 
 <style>
-    :root {
-        --pos-bg: #f8fafc;
-        --pos-border: #e2e8f0;
-    }
-
     .pos-container {
         display: grid;
-        grid-template-columns: 1.6fr 1.2fr;
-        gap: 2rem;
-        height: calc(100vh - 140px);
-    }
-
-    /* --- Product Selection Area --- */
-    .selection-area {
-        display: flex;
-        flex-direction: column;
+        grid-template-columns: 1.5fr 1fr;
         gap: 1.5rem;
-        overflow: hidden;
+        height: calc(100vh - 120px);
     }
-
-    .top-list-tabs {
-        display: flex;
-        gap: 0.75rem;
-        padding: 4px;
-        background: #eef2ff;
-        border-radius: 12px;
-    }
-
-    .top-list-tab {
-        flex: 1;
-        padding: 0.75rem;
-        text-align: center;
-        background: transparent;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 700;
-        transition: var(--transition);
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .top-list-tab.active {
-        background: white;
-        color: var(--primary);
-        box-shadow: var(--shadow-subtle);
-    }
-
-    .search-wrapper {
-        position: relative;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 1.25rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-        font-size: 1.1rem;
-    }
-
-    .search-input {
-        padding-left: 3.5rem !important;
-        height: 55px;
-        border-radius: 16px !important;
-        font-size: 1rem !important;
-        box-shadow: var(--shadow-subtle) !important;
-    }
-
     .product-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1rem;
         overflow-y: auto;
-        padding: 4px;
-        flex: 1;
+        padding-right: 0.5rem;
+        max-height: calc(100vh - 200px);
     }
-
     .product-card {
         background: white;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
         cursor: pointer;
-        transition: var(--transition);
-        text-align: left;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+        transition: all 0.2s;
+        text-align: center;
     }
-
     .product-card:hover {
-        border-color: var(--primary);
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-4px);
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-md);
     }
-
-    .product-img-wrap {
-        width: 100%;
-        aspect-ratio: 1;
-        background: var(--background);
-        border-radius: var(--radius-md);
-        display: flex; align-items: center; justify-content: center;
-        overflow: hidden;
-    }
-
     .product-img {
         width: 100%;
-        height: 100%;
+        height: 80px;
         object-fit: contain;
-        transition: var(--transition);
+        margin-bottom: 0.5rem;
+        background: #f8fafc;
+        border-radius: 4px;
     }
-
-    .product-card:hover .product-img { transform: scale(1.1); }
-
-    .product-info h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--text-main);
-        line-height: 1.3;
-        height: 2.6em;
-        overflow: hidden;
-    }
-
     .product-price {
-        font-weight: 800;
-        color: var(--primary);
-        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-top: 0.25rem;
     }
-
-    .stock-tag {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(4px);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    /* --- Cart Area --- */
     .cart-section {
         background: white;
-        border-radius: var(--radius-xl);
+        border-radius: 12px;
         display: flex;
         flex-direction: column;
         height: 100%;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border);
-        overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
-
     .cart-header {
-        padding: 1.5rem;
-        border-bottom: 3px solid var(--background);
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
     }
-
     .cart-items {
         flex: 1;
         overflow-y: auto;
-        padding: 1.5rem;
+        padding: 1rem;
     }
-
     .cart-item {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-        padding: 1.25rem 0;
-        border-bottom: 1.5px solid var(--background);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
     }
-
-    .cart-item-info strong {
-        display: block;
+    .cart-footer {
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        border-radius: 0 0 12px 12px;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
         font-size: 0.95rem;
+    }
+    .total-row {
+        font-size: 1.25rem;
         font-weight: 700;
-        margin-bottom: 4px;
+        color: var(--text-color);
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #cbd5e1;
     }
-
-    .cart-item-info span {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        font-weight: 600;
-    }
-
-    .cart-item-actions {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .qty-control {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: var(--background);
-        padding: 4px;
-        border-radius: 50px;
-    }
-
     .qty-btn {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
-        border: none;
+        border: 1px solid #cbd5e1;
         background: white;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
-        font-weight: 800;
-        box-shadow: var(--shadow-subtle);
+        font-size: 0.8rem;
+    }
+    .qty-btn:hover {
+        background: #f1f5f9;
+    }
+    .stock-badge {
+        font-size: 0.7rem;
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 99px;
+    }
+    .search-bar {
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+    }
+    .search-input {
+        padding-left: 2.5rem;
+    }
+    .top-list-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .top-list-tab {
+        flex: 1;
+        padding: 0.6rem;
+        text-align: center;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
         transition: var(--transition);
+        color: var(--text-light);
     }
-
-    .qty-btn:hover { background: var(--primary); color: white; }
-
-    .item-total {
-        min-width: 100px;
-        text-align: right;
-        font-weight: 800;
-        color: var(--text-main);
+    .top-list-tab.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
     }
-
-    .cart-footer {
-        padding: 2rem;
+    .top-list-tab:hover:not(.active) {
         background: #f8fafc;
-        border-top: 1px solid var(--border);
-    }
-
-    .summary-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 2rem;
-    }
-
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        font-weight: 600;
-        color: var(--text-muted);
-    }
-
-    .summary-total {
-        margin-top: 12px;
-        padding-top: 20px;
-        border-top: 2px dashed var(--border);
-        color: var(--text-main);
-        font-size: 1.5rem;
-        font-weight: 800;
-    }
-
-    #checkoutBtn {
-        height: 60px;
-        border-radius: 18px;
-        font-size: 1.1rem;
-        gap: 12px;
-    }
-
-    /* Modal Styling */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.4);
-        backdrop-filter: blur(8px);
-        z-index: 1000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-
-    .modal-content {
-        animation: modalIn 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-    }
-
-    @keyframes modalIn {
-        from { opacity: 0; transform: scale(0.95) translateY(20px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    @media (max-width: 1280px) {
-        .pos-container { grid-template-columns: 1fr; height: auto; }
-        .product-grid { max-height: 600px; }
+        border-color: #cbd5e1;
     }
 </style>
 
-
 <div class="pos-container">
-    <!-- Left Side: Selection Area -->
-    <div class="selection-area">
+    <!-- Left Side: Products -->
+    <div style="display: flex; flex-direction: column;">
         <div class="top-list-tabs">
-            <div class="top-list-tab active" data-type="all" onclick="setTopListFilter('all', this)">Global List</div>
+            <div class="top-list-tab active" data-type="all" onclick="setTopListFilter('all', this)">All List</div>
             <div class="top-list-tab" data-type="hardware" onclick="setTopListFilter('hardware', this)">Hardware</div>
             <div class="top-list-tab" data-type="sanitary" onclick="setTopListFilter('sanitary', this)">Sanitary</div>
             <div class="top-list-tab" data-type="ragrai" onclick="setTopListFilter('ragrai', this)">Ragrai</div>
         </div>
 
-        <div class="search-wrapper">
+        <div class="search-bar">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="productSearch" class="form-control search-input" placeholder="Scan Barcode or Search Products..." onkeyup="filterProducts()">
+            <input type="text" id="productSearch" class="form-control search-input" placeholder="Scan barcode or search product..." onkeyup="filterProducts()">
         </div>
         
         <div class="product-grid" id="productGrid">
             <?php foreach ($products as $p): ?>
                 <div class="product-card" onclick='addToCart(<?= json_encode($p) ?>)' data-name="<?= strtolower($p['name']) ?> <?= strtolower($p['brand']) ?>" data-type="<?= $p['top_list'] ?>">
-                    <div class="product-img-wrap">
+                    <div style="position: relative;">
                         <?php if ($p['image']): ?>
                             <img src="uploads/<?= htmlspecialchars($p['image']) ?>" class="product-img">
                         <?php else: ?>
-                            <i class="fa-solid fa-box text-light fa-2x"></i>
+                            <div class="product-img" style="display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-box text-light fa-2x"></i>
+                            </div>
                         <?php endif; ?>
-                        <span class="stock-tag"><?= $p['quantity'] ?> IN STOCK</span>
+                        <span class="stock-badge"><?= $p['quantity'] ?> left</span>
                     </div>
-                    <div class="product-info">
-                        <h4><?= htmlspecialchars($p['name']) ?></h4>
-                        <div class="product-price"><?= formatPrice($p['price']) ?></div>
-                    </div>
+                    <div style="font-weight: 500; font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;"><?= htmlspecialchars($p['name']) ?></div>
+                    <div class="product-price"><?= formatPrice($p['price']) ?></div>
                 </div>
             <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- Right Side: Cart Hub -->
+    <!-- Right Side: Cart -->
     <div class="cart-section">
         <div class="cart-header">
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    Customer Profile
-                    <button onclick="showAddCustomerModal()" class="btn btn-primary btn-sm" style="border-radius: 8px;">
-                        <i class="fa-solid fa-user-plus"></i> New
+                <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
+                    Select Customer
+                    <button onclick="showAddCustomerModal()" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 0.75rem;">
+                        <i class="fa-solid fa-plus"></i> New
                     </button>
                 </label>
-                <select id="customerSelect" class="form-control" style="margin-top: 10px;">
+                <select id="customerSelect" class="form-control" style="font-size: 0.9rem; padding: 0.5rem;">
                     <option value="">Walk-in Customer</option>
                     <?php while($c = $customers_result->fetch_assoc()): ?>
                         <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?> (<?= ucfirst($c['type']) ?>)</option>
@@ -365,38 +224,37 @@ $customers_result = $conn->query($customers_sql);
         </div>
 
         <div class="cart-items" id="cartItems">
-            <div style="text-align: center; color: var(--text-light); margin-top: 6rem;">
-                <i class="fa-solid fa-cart-shopping fa-3x" style="margin-bottom: 1.5rem; opacity: 0.1;"></i>
-                <p style="font-weight: 700; opacity: 0.4;">Your cart is empty</p>
+            <!-- Items injected here -->
+            <div style="text-align: center; color: var(--text-light); margin-top: 2rem;">
+                <i class="fa-solid fa-cart-shopping fa-2x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Cart is empty</p>
             </div>
         </div>
 
         <div class="cart-footer">
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <span>Subtotal</span>
-                    <span id="subtotalDisplay">Rs. 0</span>
-                </div>
-                <div class="summary-item" style="align-items: center;">
-                    <span>Reduction (Rs)</span>
-                    <input type="number" id="discountInput" class="form-control" style="width: 100px; text-align: right; padding: 6px 12px; height: 40px;" value="0" oninput="renderCart()">
-                </div>
-                <div class="summary-item summary-total">
-                    <span>Total Bill</span>
-                    <span id="totalDisplay">Rs. 0</span>
-                </div>
-                <div class="summary-item" style="align-items: center; margin-top: 10px;">
-                    <span>Payment Received</span>
-                    <input type="number" id="paidInput" class="form-control" style="width: 120px; text-align: right; font-weight: 800; border-color: var(--primary);" placeholder="0" oninput="calculateDue()">
-                </div>
-                <div class="summary-item" style="color: var(--danger); font-weight: 800; font-size: 1.1rem; margin-top: 5px;">
-                    <span>Due Balance</span>
-                    <span id="dueDisplay">Rs. 0</span>
-                </div>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotalDisplay">Rs. 0.00</span>
+            </div>
+            <div class="summary-row" style="align-items: center;">
+                <span>Discount</span>
+                <input type="number" id="discountInput" class="form-control" style="width: 80px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" value="0" oninput="renderCart()">
+            </div>
+            <div class="summary-row total-row">
+                <span>Total</span>
+                <span id="totalDisplay" style="color: var(--primary-dark);">Rs. 0.00</span>
+            </div>
+            <div class="summary-row" style="align-items: center; margin-top: 1rem;">
+                <span>Paid Amount</span>
+                <input type="number" id="paidInput" class="form-control" style="width: 100px; padding: 0.25rem; font-size: 0.9rem; text-align: right;" placeholder="0.00" oninput="calculateDue()">
+            </div>
+            <div class="summary-row" style="color: var(--danger-color); font-weight: 600;">
+                <span>Due Amount</span>
+                <span id="dueDisplay">Rs. 0.00</span>
             </div>
             
-            <button onclick="processSale()" id="checkoutBtn" class="btn btn-primary btn-lg w-100" disabled>
-                <i class="fa-solid fa-check-circle"></i> Complete Checkout
+            <button onclick="processSale()" id="checkoutBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1rem; padding: 0.8rem;" disabled>
+                <i class="fa-solid fa-receipt"></i> Process Sale
             </button>
         </div>
     </div>
@@ -405,7 +263,6 @@ $customers_result = $conn->query($customers_sql);
 <script>
     let cart = [];
     let currentTopList = 'all';
-    let currentTotal = 0;
 
     function setTopListFilter(type, el) {
         currentTopList = type;
@@ -424,17 +281,22 @@ $customers_result = $conn->query($customers_sql);
             const matchesSearch = name.includes(query);
             const matchesType = (currentTopList === 'all' || type === currentTopList);
 
-            card.style.display = (matchesSearch && matchesType) ? 'flex' : 'none';
+            if (matchesSearch && matchesType) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
         });
     }
 
     function addToCart(product) {
+        // Check if exists
         const existing = cart.find(item => item.id === product.id);
         if (existing) {
             if (existing.quantity < product.quantity) {
                 existing.quantity++;
             } else {
-                showToast('Limited Stock Available!', 'warning');
+                showToast('Stock limit reached!', 'warning');
             }
         } else {
             cart.push({
@@ -446,7 +308,6 @@ $customers_result = $conn->query($customers_sql);
             });
         }
         renderCart();
-        showToast('Item Added to Cart');
     }
 
     function removeFromCart(index) {
@@ -461,7 +322,7 @@ $customers_result = $conn->query($customers_sql);
             item.quantity = newQty;
             renderCart();
         } else if (newQty > item.max_stock) {
-            showToast('Insufficient Stock!', 'warning');
+            showToast('Stock limit reached!', 'warning');
         }
     }
 
@@ -471,15 +332,14 @@ $customers_result = $conn->query($customers_sql);
         
         if (cart.length === 0) {
             container.innerHTML = `
-                <div style="text-align: center; color: var(--text-light); margin-top: 6rem;">
-                    <i class="fa-solid fa-cart-shopping fa-3x" style="margin-bottom: 1.5rem; opacity: 0.1;"></i>
-                    <p style="font-weight: 700; opacity: 0.4;">Your cart is empty</p>
+                <div style="text-align: center; color: var(--text-light); margin-top: 2rem;">
+                    <i class="fa-solid fa-cart-shopping fa-2x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Cart is empty</p>
                 </div>
             `;
             checkoutBtn.disabled = true;
-            document.getElementById('subtotalDisplay').innerText = 'Rs. 0';
-            document.getElementById('totalDisplay').innerText = 'Rs. 0';
-            document.getElementById('dueDisplay').innerText = 'Rs. 0';
+            document.getElementById('subtotalDisplay').innerText = 'Rs. 0.00';
+            document.getElementById('totalDisplay').innerText = 'Rs. 0.00';
             return;
         }
 
@@ -492,20 +352,18 @@ $customers_result = $conn->query($customers_sql);
             subtotal += total;
             html += `
                 <div class="cart-item">
-                    <div class="cart-item-info">
-                        <strong>${item.name}</strong>
-                        <span>Rs. ${item.price.toLocaleString()} × ${item.quantity}</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500;">${item.name}</div>
+                        <div style="color: var(--text-light); font-size: 0.8rem;">Rs. ${item.price} x ${item.quantity}</div>
                     </div>
-                    <div class="cart-item-actions">
-                        <div class="qty-control">
-                            <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
-                            <span style="font-weight: 800; min-width: 25px; text-align: center;">${item.quantity}</span>
-                            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
-                        </div>
-                        <div class="item-total">Rs. ${total.toLocaleString()}</div>
-                        <button onclick="removeFromCart(${index})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                        <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                        <span style="font-weight: 500; min-width: 20px; text-align: center;">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600;">Rs. ${total.toFixed(2)}</div>
+                        <i class="fa-solid fa-trash text-danger" style="font-size: 0.8rem; cursor: pointer; margin-top: 0.25rem;" onclick="removeFromCart(${index})"></i>
                     </div>
                 </div>
             `;
@@ -514,22 +372,25 @@ $customers_result = $conn->query($customers_sql);
         container.innerHTML = html;
 
         const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-        currentTotal = Math.max(0, subtotal - discount);
+        const total = subtotal - discount;
+        currentTotal = total > 0 ? total : 0;
 
-        document.getElementById('subtotalDisplay').innerText = 'Rs. ' + subtotal.toLocaleString();
-        document.getElementById('totalDisplay').innerText = 'Rs. ' + currentTotal.toLocaleString();
+        document.getElementById('subtotalDisplay').innerText = 'Rs. ' + subtotal.toFixed(2);
+        document.getElementById('totalDisplay').innerText = 'Rs. ' + currentTotal.toFixed(2);
         
+        // Update Paid input default if 0
+        // removed auto-fill as per user request
         calculateDue();
     }
 
     function calculateDue() {
         const paid = parseFloat(document.getElementById('paidInput').value) || 0;
-        const due = Math.max(0, currentTotal - paid);
-        document.getElementById('dueDisplay').innerText = 'Rs. ' + due.toLocaleString();
+        const due = currentTotal - paid;
+        document.getElementById('dueDisplay').innerText = 'Rs. ' + (due > 0 ? due.toFixed(2) : '0.00');
     }
 
     function processSale() {
-        if (!confirm('Proceed to generate invoice for this sale?')) return;
+        if (!confirm('Complete this sale?')) return;
 
         const customerId = document.getElementById('customerSelect').value;
         const discount = parseFloat(document.getElementById('discountInput').value) || 0;
@@ -544,7 +405,7 @@ $customers_result = $conn->query($customers_sql);
 
         const btn = document.getElementById('checkoutBtn');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Finalizing Sale...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
         btn.disabled = true;
 
         fetch('process_sale.php', {
@@ -557,20 +418,19 @@ $customers_result = $conn->query($customers_sql);
             if (result.status === 'success') {
                 window.location.href = 'invoice.php?id=' + result.sale_id;
             } else {
-                showToast(result.message, 'error');
+                showToast('Error: ' + result.message, 'error');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Communication Error', 'error');
+            alert('An error occurred.');
             btn.innerHTML = originalText;
             btn.disabled = false;
         });
     }
 </script>
-
 
 <!-- Quick Add Customer Modal -->
 <div id="customerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">

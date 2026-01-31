@@ -15,7 +15,17 @@ $customer_id = $data['customer_id']; // Can be null for walk-in
 $items = $data['items'];
 $discount = $data['discount'] ?? 0;
 $tax_rate = $data['tax_rate'] ?? 0;
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
+
+// Verify if user_id exists in database to avoid foreign key constraint error
+if ($user_id) {
+    $check_user = $conn->prepare("SELECT id FROM users WHERE id = ?");
+    $check_user->bind_param("i", $user_id);
+    $check_user->execute();
+    if ($check_user->get_result()->num_rows === 0) {
+        $user_id = null; // Set to null if user doesn't exist (allowed by DB schema)
+    }
+}
 
 if (empty($items)) {
     echo json_encode(['status' => 'error', 'message' => 'Cart is empty']);
