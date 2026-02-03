@@ -1,0 +1,17 @@
+/* Compact UI: reduce paddings/margins and tighten spacing for dashboards */
+
+*{box-sizing:border-box;min-width:0!important}
+html,body{font-size:13px;line-height:1.15;overflow-x:hidden}
+.container,.container-fluid{padding-left:6px!important;padding-right:6px!important}
+.row>[class*="col-"]{padding-left:6px;padding-right:6px}
+h1,h2,h3,h4,h5,h6{margin:.25rem 0;font-weight:600}
+p,label{margin-bottom:.25rem}
+.btn{padding:.22rem .45rem!important;font-size:12px!important}
+input,select,textarea,.form-control{padding:.28rem .4rem!important;font-size:12px!important}
+.table,table{font-size:12px;width:100%!important;table-layout:fixed;border-collapse:collapse}
+.table th,.table td,table th,table td{padding:.28rem .4rem!important;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.card{margin-bottom:.5rem!important;padding:.5rem!important;border-radius:4px!important}
+.navbar,.nav{padding:.2rem .2rem}
+.badge{padding:.15rem .35rem;font-size:11px}
+.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:768px){html,body{font-size:12px}.table th,.table td{padding:.2rem .3rem!important;font-size:11px}.btn{padding:.18rem .35rem!important;font-size:11px!important}}

@@ -1,0 +1,44 @@
+/* --- Scoped Full Height Page Styles --- */
+.page-products .main-content,
+.page-sales .main-content {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-products .card,
+.page-sales .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    margin-bottom: 0 !important;
+}
+
+.page-products .table-container,
+.page-sales .table-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    min-height: 0;
+}
+
+/* Ensure sticky header remains visible while scrolling internally */
+.page-products th,
+.page-sales th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    /* Match the background of the th to ensure content doesn't show through */
+    background: var(--background); 
+}
+
+/* Ensure other elements in card don't shrink */
+.page-products .card > div:not(.table-container),
+.page-products .card > form,
+.page-sales .card > div:not(.table-container),
+.page-sales .card > form {
+    flex-shrink: 0;
+}
