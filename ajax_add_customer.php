@@ -1,7 +1,13 @@
 <?php
+// Clear any existing output buffers to ensure clean JSON
+while (ob_get_level()) {
+    ob_end_clean();
+}
+
 require_once 'includes/config.php';
 requireAuth();
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'] ?? '';
@@ -31,4 +37,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
 }
-?>

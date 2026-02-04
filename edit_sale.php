@@ -462,10 +462,22 @@ $customers_result = $conn->query($customers_sql);
 
         fetch('update_sale.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
+        .then(response => {
+            return response.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Response was not valid JSON:', text);
+                    throw new Error('Server returned invalid response');
+                }
+            });
+        })
         .then(result => {
             if (result.status === 'success') {
                 window.location.href = 'invoice.php?id=' + saleId;
@@ -477,7 +489,7 @@ $customers_result = $conn->query($customers_sql);
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred.');
+            showToast('Error: ' + error.message, 'error');
             btn.innerHTML = originalText;
             btn.disabled = false;
         });
@@ -541,9 +553,19 @@ $customers_result = $conn->query($customers_sql);
 
         fetch('ajax_add_customer.php', {
             method: 'POST',
+            headers: { 'Accept': 'application/json' },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            return response.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Response was not valid JSON:', text);
+                    throw new Error('Server returned invalid response');
+                }
+            });
+        })
         .then(result => {
             if (result.status === 'success') {
                 const select = document.getElementById('customerSelect');
@@ -561,7 +583,7 @@ $customers_result = $conn->query($customers_sql);
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred.');
+            showToast('Error: ' + error.message, 'error');
         });
     }
 </script>

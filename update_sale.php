@@ -1,7 +1,13 @@
 <?php
+// Clear any existing output buffers to ensure clean JSON
+while (ob_get_level()) {
+    ob_end_clean();
+}
+
 require_once 'includes/config.php';
 requireAuth();
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
 
 // Get raw POST data
 $data = json_decode(file_get_contents('php://input'), true);
@@ -30,6 +36,21 @@ if ($user_id) {
 if (empty($items)) {
     echo json_encode(['status' => 'error', 'message' => 'Cart cannot be empty']);
     exit;
+}
+
+// Check if required columns exist (Auto-migration)
+$columns_check = $conn->query("SHOW COLUMNS FROM sales LIKE 'paid_amount'");
+if ($columns_check) {
+    if ($columns_check->num_rows == 0) {
+        $conn->query("ALTER TABLE sales ADD COLUMN paid_amount DECIMAL(10, 2) DEFAULT 0 AFTER total_amount");
+        $conn->query("ALTER TABLE sales ADD COLUMN due_amount DECIMAL(10, 2) DEFAULT 0 AFTER paid_amount");
+    }
+}
+$balance_check = $conn->query("SHOW COLUMNS FROM customers LIKE 'balance'");
+if ($balance_check) {
+    if ($balance_check->num_rows == 0) {
+        $conn->query("ALTER TABLE customers ADD COLUMN balance DECIMAL(10, 2) DEFAULT 0");
+    }
 }
 
 $conn->begin_transaction();
@@ -141,4 +162,3 @@ try {
     $conn->rollback();
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
-?>

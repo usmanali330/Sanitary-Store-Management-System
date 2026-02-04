@@ -19,9 +19,23 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Inject compact stylesheet into HTML output to reduce paddings/margins and avoid extra scrolling
-if (php_sapi_name() !== 'cli') {
+// Skip this for CLI and AJAX/JSON requests
+$isAjaxRequest = (
+    !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+) || (
+    isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false
+) || (
+    isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false
+);
+
+if (php_sapi_name() !== 'cli' && !$isAjaxRequest) {
     ob_start(function ($buffer) {
-        $cssLink = '<link rel="stylesheet" href="/Sanitary-Store-Management-System/assets/css/compact.css">';
+        $trimmed = trim($buffer);
+        // Don't modify if it's a JSON response
+        if (strpos($trimmed, '{') === 0 || strpos($trimmed, '[') === 0) {
+            return $buffer;
+        }
+        $cssLink = '<link rel="stylesheet" href="/Sanitary-Store-Management-System-main/assets/css/compact.css">';
         if (stripos($buffer, '</head>') !== false) {
             // insert before closing head
             return preg_replace('/<\/head>/i', $cssLink . "\n</head>", $buffer, 1);
@@ -30,6 +44,7 @@ if (php_sapi_name() !== 'cli') {
         return $cssLink . "\n" . $buffer;
     });
 }
+
 
 // Auto-login logic (Bypass Login)
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !isset($_SESSION['username'])) {
@@ -87,4 +102,3 @@ function fetch_all_assoc_safe($result) {
     }
     return $rows;
 }
-?>
