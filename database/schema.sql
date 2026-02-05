@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
 -- Categories Table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+    top_list VARCHAR(50) DEFAULT 'sanitary'
 );
 
 -- Suppliers Table

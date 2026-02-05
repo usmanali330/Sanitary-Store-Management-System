@@ -8,12 +8,16 @@ $edit_name = '';
 if (isset($_GET['edit'])) {
     $edit_id = $_GET['edit'];
     $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
-    $stmt->bind_param("i", $edit_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if ($cat = $res->fetch_assoc()) {
-        $edit_name = $cat['name'];
-        $edit_top_list = $cat['top_list'];
+    if ($stmt) {
+        $stmt->bind_param("i", $edit_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($cat = $res->fetch_assoc()) {
+            $edit_name = $cat['name'];
+            $edit_top_list = $cat['top_list'] ?? 'sanitary';
+        }
+    } else {
+        die("Database error: " . $conn->error);
     }
 }
 
@@ -25,18 +29,50 @@ if (isset($_GET['delete'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
-    $top_list = isset($_POST['top_list']) ? $_POST['top_list'] : '';
+    $top_list = isset($_POST['top_list']) ? $_POST['top_list'] : 'sanitary';
     if (!empty($name)) {
+        // Check if top_list column exists
+        $check_column = $conn->query("SHOW COLUMNS FROM categories LIKE 'top_list'");
+        $has_top_list = $check_column && $check_column->num_rows > 0;
+        
         if (isset($_POST['id']) && !empty($_POST['id'])) {
             // Update
-            $stmt = $conn->prepare("UPDATE categories SET name = ?, top_list = ? WHERE id = ?");
-            $stmt->bind_param("ssi", $name, $top_list, $_POST['id']);
-            $stmt->execute();
+            if ($has_top_list) {
+                $stmt = $conn->prepare("UPDATE categories SET name = ?, top_list = ? WHERE id = ?");
+                if ($stmt) {
+                    $stmt->bind_param("ssi", $name, $top_list, $_POST['id']);
+                    $stmt->execute();
+                } else {
+                    die("Database error: " . $conn->error);
+                }
+            } else {
+                $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
+                if ($stmt) {
+                    $stmt->bind_param("si", $name, $_POST['id']);
+                    $stmt->execute();
+                } else {
+                    die("Database error: " . $conn->error);
+                }
+            }
         } else {
             // Insert
-            $stmt = $conn->prepare("INSERT INTO categories (name, top_list) VALUES (?, ?)");
-            $stmt->bind_param("ss", $name, $top_list);
-            $stmt->execute();
+            if ($has_top_list) {
+                $stmt = $conn->prepare("INSERT INTO categories (name, top_list) VALUES (?, ?)");
+                if ($stmt) {
+                    $stmt->bind_param("ss", $name, $top_list);
+                    $stmt->execute();
+                } else {
+                    die("Database error: " . $conn->error);
+                }
+            } else {
+                $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
+                if ($stmt) {
+                    $stmt->bind_param("s", $name);
+                    $stmt->execute();
+                } else {
+                    die("Database error: " . $conn->error);
+                }
+            }
         }
         echo "<script>window.location.href='categories.php';</script>";
     }
