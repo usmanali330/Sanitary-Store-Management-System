@@ -1,9 +1,52 @@
 <?php
+/**
+ * Database Configuration Template
+ * 
+ * Copy this file to config.php and update with your actual database credentials
+ * 
+ * For Remote Database (Production/Server):
+ * - Use your server's hostname or IP address
+ * - Use your database username and password
+ * - Make sure remote MySQL access is enabled
+ * 
+ * For Local Database (Development):
+ * - Use 'localhost' as host
+ * - Use 'root' as username (default XAMPP)
+ * - Leave password empty (default XAMPP)
+ */
+
+// ============================================
+// REMOTE DATABASE CONFIGURATION (Production)
+// ============================================
+// Uncomment and fill in your remote database details:
+/*
+define('DB_HOST', 'your-remote-server.com');      // Server hostname or IP
+define('DB_USER', 'your_database_username');        // Database username
+define('DB_PASS', 'your_database_password');        // Database password
+define('DB_NAME', 'sanitary_store_db');            // Database name
+*/
+
+// ============================================
+// LOCAL DATABASE CONFIGURATION (Development)
+// ============================================
+// Uncomment for local development:
+/*
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'sanitary_store_db');
+*/
+
+// ============================================
+// CURRENT CONFIGURATION (Default)
+// ============================================
+// Update these values with your actual credentials:
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'sanitary_store_db');
 
+// Database Connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
@@ -35,10 +78,7 @@ if (php_sapi_name() !== 'cli' && !$isAjaxRequest) {
         if (strpos($trimmed, '{') === 0 || strpos($trimmed, '[') === 0) {
             return $buffer;
         }
-        // Get the base path dynamically
-        $basePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__DIR__));
-        $basePath = str_replace('\\', '/', $basePath); // Fix Windows paths
-        $cssLink = '<link rel="stylesheet" href="' . $basePath . '/assets/css/compact.css">';
+        $cssLink = '<link rel="stylesheet" href="/Sanitary-Store-Management-System-main/assets/css/compact.css">';
         if (stripos($buffer, '</head>') !== false) {
             // insert before closing head
             return preg_replace('/<\/head>/i', $cssLink . "\n</head>", $buffer, 1);
@@ -105,3 +145,4 @@ function fetch_all_assoc_safe($result) {
     }
     return $rows;
 }
+

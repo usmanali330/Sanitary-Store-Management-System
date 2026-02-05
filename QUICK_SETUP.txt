@@ -1,0 +1,58 @@
+═══════════════════════════════════════════════════════════════
+  QUICK SETUP GUIDE - Localhost with Remote Database
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Install XAMPP
+─────────────────────
+1. Download XAMPP from: https://www.apachefriends.org/
+2. Install and start Apache (you don't need MySQL running)
+
+STEP 2: Copy Files
+──────────────────
+Copy the entire project folder to:
+  Windows: C:\xampp\htdocs\Sanitary-Store-Management-System\
+  Mac:     /Applications/XAMPP/htdocs/Sanitary-Store-Management-System/
+  Linux:   /opt/lampp/htdocs/Sanitary-Store-Management-System/
+
+STEP 3: Configure Database Connection
+──────────────────────────────────────
+Open: includes/config.php
+
+Change these lines:
+───────────────────
+define('DB_HOST', 'your-server.com');        ← Your server hostname/IP
+define('DB_USER', 'your_username');         ← Your database username  
+define('DB_PASS', 'your_password');          ← Your database password
+define('DB_NAME', 'sanitary_store_db');      ← Your database name
+
+STEP 4: Enable Remote Database Access
+─────────────────────────────────────
+On your server/hosting (cPanel):
+1. Go to "Remote MySQL" 
+2. Add your local IP address (or use % for all IPs)
+3. Save
+
+STEP 5: Test
+────────────
+Open browser: http://localhost/Sanitary-Store-Management-System/
+
+If you see the dashboard → SUCCESS! ✅
+If you see connection error → Check Step 3 & 4
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+❌ "Connection refused"
+   → Check DB_HOST (might need port: hostname:3306)
+   → Verify remote MySQL is enabled on server
+
+❌ "Access denied"
+   → Double-check username and password
+   → Verify user has remote access privileges
+
+❌ "Unknown database"
+   → Verify database name is correct
+
+For detailed help, see: SETUP_LOCALHOST.md
+
